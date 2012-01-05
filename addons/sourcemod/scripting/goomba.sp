@@ -172,7 +172,10 @@ public Action:OnStartTouch(client, other)
 
                     if(vec[2] < GetConVarFloat(g_Cvar_StompMinSpeed) * -1.0)
                     {
-                        GoombaStomp(client, other);
+                        if(GoombaCheck(client, other))
+                        {
+                            GoombaStomp(client, other);
+                        }
                     }
                 }
             }
@@ -182,128 +185,136 @@ public Action:OnStartTouch(client, other)
     return Plugin_Continue;
 }
 
-GoombaStomp(client, victim)
+bool:GoombaCheck(client, victim)
 {
-    if(victim > 0 && victim <= MaxClients)
+    if(victim <= 0 || victim > MaxClients)
     {
-        decl String:edictName[32];
-        GetEdictClassname(victim, edictName, sizeof(edictName));
+        return false;
+    }
 
-        if(StrEqual(edictName, "player"))
+    decl String:edictName[32];
+    GetEdictClassname(victim, edictName, sizeof(edictName));
+
+    if(!StrEqual(edictName, "player"))
+    {
+        return false;
+    }
+    if(!IsPlayerAlive(victim))
+    {
+        return false;
+    }
+    if(GetClientTeam(client) == GetClientTeam(victim))
+    {
+        return false;
+    }
+    if(GetEntProp(victim, Prop_Data, "m_takedamage", 1) == 0)
+    {
+        return false;
+    }
+
+    if(GetConVarBool(g_Cvar_ImmunityEnabled))
+    {
+        decl String:strCookieClient[16];
+        GetClientCookie(client, g_Cookie_ClientPref, strCookieClient, sizeof(strCookieClient));
+
+        decl String:strCookieVictim[16];
+        GetClientCookie(victim, g_Cookie_ClientPref, strCookieVictim, sizeof(strCookieVictim));
+
+        if(StrEqual(strCookieClient, "on") || StrEqual(strCookieClient, "next_off"))
         {
-            if(IsPlayerAlive(victim))
+            return false;
+        }
+        else
+        {
+            if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
             {
-                new bool:CancelStomp = false;
-
-                decl String:strCookieClient[16];
-                GetClientCookie(client, g_Cookie_ClientPref, strCookieClient, sizeof(strCookieClient));
-
-                decl String:strCookieVictim[16];
-                GetClientCookie(victim, g_Cookie_ClientPref, strCookieVictim, sizeof(strCookieVictim));
-
-                if(GetClientTeam(client) == GetClientTeam(victim))
+                if(Goomba_SingleImmunityMessage[client] == 0)
                 {
-                    CancelStomp = true;
+                    CPrintToChat(client, "%t", "Victim Immun");
                 }
 
-                if(GetConVarBool(g_Cvar_ImmunityEnabled))
-                {
-                    if(StrEqual(strCookieClient, "on") || StrEqual(strCookieClient, "next_off"))
-                    {
-                        CancelStomp = true;
-                    }
-                    else
-                    {
-                        if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
-                        {
-                            CancelStomp = true;
-                            if(Goomba_SingleImmunityMessage[client] == 0)
-                            {
-                                CPrintToChat(client, "%t", "Victim Immun");
-                            }
-
-                            Goomba_SingleImmunityMessage[client] = 1;
-                            CreateTimer(0.5, InhibMessage, client);
-                        }
-                    }
-                }
-
-                if((GetConVarBool(g_Cvar_UberImun) && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)))
-                {
-                    CancelStomp = true;
-                }
-                else if(GetConVarBool(g_Cvar_StunImun) && TF2_IsPlayerInCondition(victim, TFCond_Dazed))
-                {
-                    CancelStomp = true;
-                }
-                else if(GetConVarBool(g_Cvar_CloakImun) && TF2_IsPlayerInCondition(client, TFCond_Cloaked))
-                {
-                    CancelStomp = true;
-                }
-                else if(GetConVarBool(g_Cvar_CloakedImun) && TF2_IsPlayerInCondition(victim, TFCond_Cloaked))
-                {
-                    CancelStomp = true;
-                }
-                else if(GetConVarBool(g_Cvar_BonkedImun) && TF2_IsPlayerInCondition(victim, TFCond_Bonked))
-                {
-                    CancelStomp = true;
-                }
-
-                if(!CancelStomp)
-                {
-                    new Float:damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
-                    new Float:damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
-
-                    new Action:stompForwardResult = OnStomp(client, victim, damageMultiplier, damageBonus);
-
-                    if(stompForwardResult == Plugin_Continue)
-                    {
-                        damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
-                        damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
-                    }
-                    else if(stompForwardResult != Plugin_Changed)
-                    {
-                        return;
-                    }
-
-                    new particle = AttachParticle(victim, "mini_fireworks");
-                    if(particle != -1)
-                    {
-                        CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
-                    }
-
-                    new victim_health = GetClientHealth(victim);
-
-                    // Rebond
-                    decl Float:vecAng[3], Float:vecVel[3];
-                    GetClientEyeAngles(client, vecAng);
-                    GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVel);
-                    vecAng[0] = DegToRad(vecAng[0]);
-                    vecAng[1] = DegToRad(vecAng[1]);
-                    vecVel[0] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Cosine(vecAng[1]);
-                    vecVel[1] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Sine(vecAng[1]);
-                    vecVel[2] = GetConVarFloat(g_Cvar_JumpPower) + 100.0;
-
-                    g_TeleportAtFrameEnd[client] = true;
-                    g_TeleportAtFrameEnd_Vel[client] = vecVel;
-
-                    Goomba_Fakekill[victim] = 1;
-                    SDKHooks_TakeDamage(victim,
-                                        client,
-                                        client,
-                                        victim_health * damageMultiplier + damageBonus,
-                                        DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
-
-                    // The victim is übercharged
-                    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
-                    {
-                        ForcePlayerSuicide(victim);
-                    }
-                    Goomba_Fakekill[victim] = 0;
-                }
+                Goomba_SingleImmunityMessage[client] = 1;
+                CreateTimer(0.5, InhibMessage, client);
+                return false;
             }
         }
     }
+
+    if((GetConVarBool(g_Cvar_UberImun) && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)))
+    {
+        return false;
+    }
+    if(GetConVarBool(g_Cvar_StunImun) && TF2_IsPlayerInCondition(victim, TFCond_Dazed))
+    {
+        return false;
+    }
+    if(GetConVarBool(g_Cvar_CloakImun) && TF2_IsPlayerInCondition(client, TFCond_Cloaked))
+    {
+        return false;
+    }
+    if(GetConVarBool(g_Cvar_CloakedImun) && TF2_IsPlayerInCondition(victim, TFCond_Cloaked))
+    {
+        return false;
+    }
+    if(GetConVarBool(g_Cvar_BonkedImun) && TF2_IsPlayerInCondition(victim, TFCond_Bonked))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+GoombaStomp(client, victim)
+{
+    new Float:damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
+    new Float:damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+
+    new Action:stompForwardResult = OnStomp(client, victim, damageMultiplier, damageBonus);
+
+    if(stompForwardResult == Plugin_Continue)
+    {
+        damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
+        damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+    }
+    else if(stompForwardResult != Plugin_Changed)
+    {
+        return;
+    }
+
+    new particle = AttachParticle(victim, "mini_fireworks");
+    if(particle != -1)
+    {
+        CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
+    }
+
+    new victim_health = GetClientHealth(victim);
+
+    // Rebond
+    decl Float:vecAng[3], Float:vecVel[3];
+    GetClientEyeAngles(client, vecAng);
+    GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVel);
+    vecAng[0] = DegToRad(vecAng[0]);
+    vecAng[1] = DegToRad(vecAng[1]);
+    vecVel[0] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Cosine(vecAng[1]);
+    vecVel[1] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Sine(vecAng[1]);
+    vecVel[2] = GetConVarFloat(g_Cvar_JumpPower) + 100.0;
+
+    g_TeleportAtFrameEnd[client] = true;
+    g_TeleportAtFrameEnd_Vel[client] = vecVel;
+
+    Goomba_Fakekill[victim] = 1;
+    SDKHooks_TakeDamage(victim,
+                        client,
+                        client,
+                        victim_health * damageMultiplier + damageBonus,
+                        DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
+
+    // The victim is übercharged
+    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
+    {
+        ForcePlayerSuicide(victim);
+    }
+    Goomba_Fakekill[victim] = 0;
 }
 
 public OnPreThinkPost(client)
