@@ -22,6 +22,8 @@ public Plugin:myinfo =
     url = "http://www.geek-gaming.fr"
 }
 
+new Handle:g_hForwardOnStomp;
+
 new Handle:g_Cvar_StompMinSpeed = INVALID_HANDLE;
 new Handle:g_Cvar_PluginEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_UberImun = INVALID_HANDLE;
@@ -82,6 +84,8 @@ public OnPluginStart()
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
     HookEvent("player_spawn", Event_PlayerSpawn);
 
+    g_hForwardOnStomp = CreateGlobalForward("OnStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef);
+
     // sv_tags stuff
     sv_tags = FindConVar("sv_tags");
     MyAddServerTag("stomp");
@@ -120,6 +124,20 @@ public OnClientPutInServer(client)
 {
     SDKHook(client, SDKHook_StartTouch, OnStartTouch);
     SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
+}
+
+public Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus)
+{
+    decl Action:result;
+
+    Call_StartForward(g_hForwardOnStomp);
+    Call_PushCell(attacker);
+    Call_PushCell(victim);
+    Call_PushFloatRef(damageMultiplier);
+    Call_PushFloatRef(damageBonus);
+    Call_Finish(result);
+
+    return result;
 }
 
 public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newVal[])
@@ -235,6 +253,21 @@ GoombaStomp(client, victim)
 
                 if(!CancelStomp)
                 {
+                    new Float:damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
+                    new Float:damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+
+                    new Action:stompForwardResult = OnStomp(client, victim, damageMultiplier, damageBonus);
+
+                    if(stompForwardResult == Plugin_Continue)
+                    {
+                        damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
+                        damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+                    }
+                    else if(stompForwardResult != Plugin_Changed)
+                    {
+                        return;
+                    }
+
                     AttachParticle(victim, "mini_fireworks");
                     CreateTimer(5.0, Timer_DeleteParticle, victim, TIMER_FLAG_NO_MAPCHANGE);
 
@@ -257,7 +290,7 @@ GoombaStomp(client, victim)
                     SDKHooks_TakeDamage(victim,
                                         client,
                                         client,
-                                        victim_health * GetConVarFloat(g_Cvar_DamageLifeMultiplier) + GetConVarFloat(g_Cvar_DamageAdd),
+                                        victim_health * damageMultiplier + damageBonus,
                                         DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
 
                     // The victim is übercharged
