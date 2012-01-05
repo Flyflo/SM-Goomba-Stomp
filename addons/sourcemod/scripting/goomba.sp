@@ -8,7 +8,7 @@
 #undef REQUIRE_PLUGIN
 #include <updater>
 
-#define UPDATE_URL    "http://www.geek-gaming.fr/goomba/update.txt"
+#define UPDATE_URL    "https://github.com/Flyflo/SM-Goomba-Stomp/raw/master/update.txt"
 
 #define PL_NAME "Goomba Stomp"
 #define PL_DESC "Goomba Stomp"
@@ -16,6 +16,12 @@
 
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"
+
+#define GAME_UNKNOW 0
+#define GAME_TF 1
+#define GAME_CSS 2
+#define GAME_DODS 3
+#define GAME_L4D 4
 
 public Plugin:myinfo =
 {
@@ -49,6 +55,8 @@ new Handle:g_Cookie_ClientPref;
 
 new Goomba_Fakekill[MAXPLAYERS+1];
 new Goomba_SingleStomp[MAXPLAYERS+1];
+
+new g_GameMod;
 
 // Thx to Pawn 3-pg
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
@@ -106,6 +114,8 @@ public OnPluginStart()
             OnClientPutInServer(client);
         }
     }
+
+    DetectGameMod();
 }
 
 public OnPluginEnd()
@@ -164,6 +174,38 @@ public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newV
     else
     {
         MyRemoveServerTag("stomp");
+    }
+}
+
+DetectGameMod()
+{
+    decl String:modName[32];
+    GetGameFolderName(modName, sizeof(modName));
+
+    if(StrEqual(modName, "tf", false))
+    {
+        g_GameMod = GAME_TF;
+        PrintToServer("[Goomba] Detected game: Team Fortress 2");
+    }
+    else if(StrEqual(modName, "cstrike", false))
+    {
+        g_GameMod = GAME_CSS;
+        PrintToServer("[Goomba] Detected game: Counter-Strike: Source");
+    }
+    else if(StrEqual(modName, "dod", false))
+    {
+        g_GameMod = GAME_DODS;
+        PrintToServer("[Goomba] Detected game: Day of Defeat: Source");
+    }
+    else if(StrEqual(modName, "left4dead", false) || StrEqual(modName, "left4dead2", false))
+    {
+        g_GameMod = GAME_L4D;
+        PrintToServer("[Goomba] Detected game: Left 4 Dead");
+    }
+    else
+    {
+        g_GameMod = GAME_UNKNOW;
+        PrintToServer("[Goomba] Unknown game, use at your own risks");
     }
 }
 
@@ -254,25 +296,28 @@ bool:GoombaCheck(client, victim)
         }
     }
 
-    if((GetConVarBool(g_Cvar_UberImun) && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)))
+    if(g_GameMod == GAME_TF)
     {
-        return false;
-    }
-    if(GetConVarBool(g_Cvar_StunImun) && TF2_IsPlayerInCondition(victim, TFCond_Dazed))
-    {
-        return false;
-    }
-    if(GetConVarBool(g_Cvar_CloakImun) && TF2_IsPlayerInCondition(client, TFCond_Cloaked))
-    {
-        return false;
-    }
-    if(GetConVarBool(g_Cvar_CloakedImun) && TF2_IsPlayerInCondition(victim, TFCond_Cloaked))
-    {
-        return false;
-    }
-    if(GetConVarBool(g_Cvar_BonkedImun) && TF2_IsPlayerInCondition(victim, TFCond_Bonked))
-    {
-        return false;
+        if((GetConVarBool(g_Cvar_UberImun) && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)))
+        {
+            return false;
+        }
+        if(GetConVarBool(g_Cvar_StunImun) && TF2_IsPlayerInCondition(victim, TFCond_Dazed))
+        {
+            return false;
+        }
+        if(GetConVarBool(g_Cvar_CloakImun) && TF2_IsPlayerInCondition(client, TFCond_Cloaked))
+        {
+            return false;
+        }
+        if(GetConVarBool(g_Cvar_CloakedImun) && TF2_IsPlayerInCondition(victim, TFCond_Cloaked))
+        {
+            return false;
+        }
+        if(GetConVarBool(g_Cvar_BonkedImun) && TF2_IsPlayerInCondition(victim, TFCond_Bonked))
+        {
+            return false;
+        }
     }
 
     return true;
