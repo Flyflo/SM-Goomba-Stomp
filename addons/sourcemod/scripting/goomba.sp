@@ -75,6 +75,15 @@ public OnPluginStart()
 
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
     HookEvent("player_spawn", Event_PlayerSpawn);
+
+    // Support for plugin late loading
+    for (new client = 1; client <= MaxClients; client++)
+    {
+        if(IsClientInGame(client))
+        {
+            OnClientPutInServer(client);
+        }
+    }
 }
 
 public OnMapStart()
@@ -249,17 +258,17 @@ public OnPreThinkPost(client)
 public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 {
     new victim = GetClientOfUserId(GetEventInt(event, "userid"));
-    new client = GetClientOfUserId(GetEventInt(event, "attacker"));
 
     if(Goomba_Fakekill[victim] == 1)
     {
+        new killer = GetClientOfUserId(GetEventInt(event, "attacker"));
+
         new damageBits = GetEventInt(event, "damagebits");
 
         SetEventString(event, "weapon_logclassname", "goomba");
         SetEventString(event, "weapon", "taunt_scout");
         SetEventInt(event, "damagebits", damageBits |= DMG_ACID);
         SetEventInt(event, "customkill", 0);
-        SetEventInt(event, "playerpenetratecount", 0);
 
         if(!(GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER))
         {
@@ -273,10 +282,10 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
 
         if(GetConVarBool(g_Cvar_StompUndisguise))
         {
-            TF2_RemovePlayerDisguise(client);
+            TF2_RemovePlayerDisguise(killer);
         }
 
-        CPrintToChatAllEx(client, "%t", "Goomba Stomp", client, victim);
+        CPrintToChatAllEx(killer, "%t", "Goomba Stomp", killer, victim);
     }
 
     return Plugin_Continue;
