@@ -1,0 +1,19 @@
+"Updater"
+{
+    "Information"
+    {
+        "Version"
+        {
+            "Latest"    "1.2.3"
+        }
+        
+        "Notes"     "See changelog on the topic or GitHub"
+    }
+
+    "Files"
+    {
+        "Plugin"    "https://github.com/Flyflo/SM-Goomba-Stomp/raw/master/addons/sourcemod/plugins/goomba.smx"
+
+        "Source"    "https://github.com/Flyflo/SM-Goomba-Stomp/raw/master/addons/sourcemod/scripting/goomba.sp"
+    }
+}

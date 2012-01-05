@@ -5,10 +5,14 @@
 #include <colors>
 #include <clientprefs>
 #include <sdkhooks>
+#undef REQUIRE_PLUGIN
+#include <updater>
+
+#define UPDATE_URL    "http://www.geek-gaming.fr/goomba/update.txt"
 
 #define PL_NAME "Goomba Stomp"
 #define PL_DESC "Goomba Stomp"
-#define PL_VERSION "1.2.2#dev"
+#define PL_VERSION "1.2.2"
 
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"
@@ -53,6 +57,11 @@ new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 public OnPluginStart()
 {
     LoadTranslations("goomba.phrases");
+
+    if (LibraryExists("updater"))
+    {
+        Updater_AddPlugin(UPDATE_URL);
+    }
 
     g_Cvar_PluginEnabled = CreateConVar("goomba_enabled", "1.0", "Plugin On/Off", 0, true, 0.0, true, 1.0);
     g_Cvar_StompMinSpeed = CreateConVar("goomba_minspeed", "360.0", "Minimum falling speed to kill", 0, true, 0.0, false, 0.0);
@@ -116,6 +125,14 @@ public OnMapStart()
 
     AddFileToDownloadsTable(stompSoundServerPath);
     AddFileToDownloadsTable(reboundSoundServerPath);
+}
+
+public OnLibraryAdded(const String:name[])
+{
+    if (StrEqual(name, "updater"))
+    {
+        Updater_AddPlugin(UPDATE_URL);
+    }
 }
 
 public OnClientPutInServer(client)
