@@ -299,6 +299,11 @@ GoombaStomp(client, victim)
     g_TeleportAtFrameEnd[client] = true;
     g_TeleportAtFrameEnd_Vel[client] = vecVel;
 
+    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
+    {
+        TF2_RemoveCondition(victim, TFCond_Ubercharged);
+    }
+
     Goomba_Fakekill[victim] = 1;
     SDKHooks_TakeDamage(victim,
                         client,
@@ -306,11 +311,6 @@ GoombaStomp(client, victim)
                         victim_health * damageMultiplier + damageBonus,
                         DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
 
-    // The victim is übercharged
-    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
-    {
-        ForcePlayerSuicide(victim);
-    }
     Goomba_Fakekill[victim] = 0;
 }
 
