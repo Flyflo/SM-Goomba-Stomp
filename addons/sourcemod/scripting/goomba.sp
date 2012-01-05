@@ -50,8 +50,6 @@ new Goomba_SingleImmunityMessage[MAXPLAYERS+1];
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
 new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 
-new g_Ent[MAXPLAYERS+1] = 0;
-
 public OnPluginStart()
 {
     LoadTranslations("goomba.phrases");
@@ -268,8 +266,11 @@ GoombaStomp(client, victim)
                         return;
                     }
 
-                    AttachParticle(victim, "mini_fireworks");
-                    CreateTimer(5.0, Timer_DeleteParticle, victim, TIMER_FLAG_NO_MAPCHANGE);
+                    new particle = AttachParticle(victim, "mini_fireworks");
+                    if(particle != -1)
+                    {
+                        CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
+                    }
 
                     new victim_health = GetClientHealth(victim);
 
@@ -488,29 +489,27 @@ public Action:InhibMessage(Handle:timer, any:client)
     Goomba_SingleImmunityMessage[client] = 0;
 }
 
-public Action:Timer_DeleteParticle(Handle:timer, any:client)
+public Action:Timer_DeleteParticle(Handle:timer, any:ref)
 {
-    DeleteParticle(g_Ent[client]);
-    g_Ent[client] = 0;
+    new particle = EntRefToEntIndex(ref);
+    DeleteParticle(particle);
 }
 
-stock AttachParticle(client, String:particleType[])
+stock AttachParticle(entity, String:particleType[])
 {
-    DeleteParticle(g_Ent[client]);
-
     new particle = CreateEntityByName("info_particle_system");
     decl String:tName[128];
 
-    if (IsValidEdict(particle))
+    if(IsValidEdict(particle))
     {
         decl Float:pos[3] ;
-        GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
+        GetEntPropVector(entity, Prop_Send, "m_vecOrigin", pos);
         pos[2] += 74;
         TeleportEntity(particle, pos, NULL_VECTOR, NULL_VECTOR);
 
-        Format(tName, sizeof(tName), "target%i", client);
+        Format(tName, sizeof(tName), "target%i", entity);
 
-        DispatchKeyValue(client, "targetname", tName);
+        DispatchKeyValue(entity, "targetname", tName);
         DispatchKeyValue(particle, "targetname", "tf2particle");
         DispatchKeyValue(particle, "parentname", tName);
         DispatchKeyValue(particle, "effect_name", particleType);
@@ -521,20 +520,21 @@ stock AttachParticle(client, String:particleType[])
         ActivateEntity(particle);
         AcceptEntityInput(particle, "start");
 
-        g_Ent[client] = particle;
+        return particle;
     }
+    return -1;
 }
 
 stock DeleteParticle(any:particle)
 {
-    if (IsValidEntity(particle))
+    if (particle > MaxClients && IsValidEntity(particle))
     {
         decl String:classname[256];
         GetEdictClassname(particle, classname, sizeof(classname));
 
         if (StrEqual(classname, "info_particle_system", false))
         {
-            RemoveEdict(particle);
+            AcceptEntityInput(particle, "Kill");
         }
     }
 }
