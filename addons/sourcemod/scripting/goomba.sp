@@ -8,7 +8,10 @@
 
 #define PL_NAME "Goomba Stomp"
 #define PL_DESC "Goomba Stomp"
-#define PL_VERSION "1.2.2"
+#define PL_VERSION "1.2.2#dev"
+
+#define STOMP_SOUND "goomba/stomp.wav"
+#define REBOUND_SOUND "goomba/rebound.wav"
 
 public Plugin:myinfo =
 {
@@ -84,14 +87,22 @@ public OnPluginStart()
             OnClientPutInServer(client);
         }
     }
+
+    PrintToServer(REBOUND_SOUND);
 }
 
 public OnMapStart()
 {
-    PrecacheSound("goomba/rebound.wav", true);
-    PrecacheSound("goomba/stomp.wav", true);
-    AddFileToDownloadsTable("sound/goomba/rebound.wav");
-    AddFileToDownloadsTable("sound/goomba/stomp.wav");
+    PrecacheSound(STOMP_SOUND, true);
+    PrecacheSound(REBOUND_SOUND, true);
+
+    decl String:stompSoundServerPath[128];
+    decl String:reboundSoundServerPath[128];
+    Format(stompSoundServerPath, sizeof(stompSoundServerPath), "sound/%s", STOMP_SOUND);
+    Format(reboundSoundServerPath, sizeof(reboundSoundServerPath), "sound/%s", REBOUND_SOUND);
+
+    AddFileToDownloadsTable(stompSoundServerPath);
+    AddFileToDownloadsTable(reboundSoundServerPath);
 }
 
 public OnClientPutInServer(client)
@@ -248,7 +259,7 @@ public OnPreThinkPost(client)
 
             if(GetConVarBool(g_Cvar_SoundsEnabled))
             {
-                EmitSoundToAll("goomba/rebound.wav", client);
+                EmitSoundToAll(REBOUND_SOUND, client);
             }
         }
     }
@@ -269,12 +280,13 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
         SetEventString(event, "weapon", "taunt_scout");
         SetEventInt(event, "damagebits", damageBits |= DMG_ACID);
         SetEventInt(event, "customkill", 0);
+        SetEventInt(event, "playerpenetratecount", 0);
 
         if(!(GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER))
         {
             if(GetConVarBool(g_Cvar_SoundsEnabled))
             {
-                EmitSoundToClient(victim, "goomba/stomp.wav", victim);
+                EmitSoundToClient(victim, STOMP_SOUND, victim);
             }
 
             PrintHintText(victim, "%t", "Victim Stomped");
