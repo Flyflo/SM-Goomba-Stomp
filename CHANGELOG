@@ -1,0 +1,48 @@
+- 1.0.0 :
+           - First public version :p
+- 1.0.1 :
+           - Added sm_goomba_sounds to control if the plugin plays sounds or not.
+           - Fixed a little bug with the sound fonctions.
+- 1.0.2 :
+           - Added a new immunity system (require clientprefs).
+           - Fixed a bug with the über immunity.
+           - Cleanup of the GoombaStomp() code.
+- 1.0.3 :
+           - OnGameFrame() is back, SM 1.2 support.
+           - Use of DealDamage() instead of dhTakeDamage(), Dukehacks is no longer required.
+           - sm_goomba_ff cvar added, you can now stomp your teammates (mp_friendlyfire = 1 required).
+           - Translations updated and improved (better customization).
+           - Use of exvel's Colors include for colored translations.
+- 1.0.3b :
+           - Minor optimisations and code changes (thx exvel and psychonic) :
+               - MaxClients used instead of GetMaxClients()
+               - CPrintToChatAllEx used instead of CPrintToChatAll, less code and less translation for the same result :)
+               - Plugin enabled's check moved to be more efficient.
+               - Less code for the condition checks.
+- 1.1.0 :
+           - Use of SDKHook :
+               - No more team-kill stomp :(
+               - Best accuracy (should be 100%)
+               - Less resource intensive ? (removed OnGameFrame())
+           - Support for my custom achievement api plugin (TF_GOOMBA_STOMP)
+           - New cvar sm_goomba_bonked_imun
+- 1.2.0 :
+           - Added two cvars to set the damage done by the stomp :
+               - goomba_dmg_lifemultiplier
+               - goomba_dmg_add
+           - Inflicted damage work as follows -> Damage = (Victim's actual life * goomba_dmg_lifemultiplier) + goomba_dmg_add.
+           - SDKHooks_TakeDamage used instead of point_hurt entity
+           - TF2_IsPlayerInCondition used instead of TF2_GetPlayerCond
+           - Removed sm_ prefix from cvars.
+- 1.2.1 :
+           - Fixed a strange bug with disguised spies stomping teammates.
+           - Fixed rebound sound not being played when the victim was not killed.
+           - Fixed death message printed to stomped spies with the Dead Ringer active.
+           - Added goomba_on and goomba_off commands for convenience.
+           - Fixed typo in immunity cvars (immun instead of imun).
+- 1.2.2 :
+           - Fixed a bug in translations (I'm dumb).
+           - Fixed a bug that would prevent crouched people from being stomped.
+           - Fixed (for real) the death message for Dead Ringer'ed spies (thx FlaminSarge).
+           - Fixed death messages not appearing in some conditions.
+           - Stomp killicon is now always shown as critical.
