@@ -36,6 +36,9 @@ new Handle:g_Cvar_ImmunityEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_DamageLifeMultiplier = INVALID_HANDLE;
 new Handle:g_Cvar_DamageAdd = INVALID_HANDLE;
 
+// Snippet from psychonic (http://forums.alliedmods.net/showpost.php?p=1294224&postcount=2)
+new Handle:sv_tags;
+
 new Handle:g_Cookie_ClientPref;
 
 new Goomba_Fakekill[MAXPLAYERS+1];
@@ -79,6 +82,11 @@ public OnPluginStart()
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
     HookEvent("player_spawn", Event_PlayerSpawn);
 
+    // sv_tags stuff
+    sv_tags = FindConVar("sv_tags");
+    MyAddServerTag("stomp");
+    HookConVarChange(g_Cvar_PluginEnabled, OnPluginChangeState);
+
     // Support for plugin late loading
     for (new client = 1; client <= MaxClients; client++)
     {
@@ -87,8 +95,11 @@ public OnPluginStart()
             OnClientPutInServer(client);
         }
     }
+}
 
-    PrintToServer(REBOUND_SOUND);
+public OnPluginEnd()
+{
+    MyRemoveServerTag("stomp");
 }
 
 public OnMapStart()
@@ -109,6 +120,18 @@ public OnClientPutInServer(client)
 {
     SDKHook(client, SDKHook_StartTouch, OnStartTouch);
     SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
+}
+
+public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newVal[])
+{
+    if(GetConVarBool(g_Cvar_PluginEnabled))
+    {
+        MyAddServerTag("stomp");
+    }
+    else
+    {
+        MyRemoveServerTag("stomp");
+    }
 }
 
 public Action:OnStartTouch(client, other)
@@ -481,4 +504,50 @@ stock DeleteParticle(any:particle)
             RemoveEdict(particle);
         }
     }
+}
+
+stock MyAddServerTag(const String:tag[])
+{
+    decl String:currtags[128];
+    if (sv_tags == INVALID_HANDLE)
+    {
+        return;
+    }
+
+    GetConVarString(sv_tags, currtags, sizeof(currtags));
+    if (StrContains(currtags, tag) > -1)
+    {
+        // already have tag
+        return;
+    }
+
+    decl String:newtags[128];
+    Format(newtags, sizeof(newtags), "%s%s%s", currtags, (currtags[0]!=0)?",":"", tag);
+    new flags = GetConVarFlags(sv_tags);
+    SetConVarFlags(sv_tags, flags & ~FCVAR_NOTIFY);
+    SetConVarString(sv_tags, newtags);
+    SetConVarFlags(sv_tags, flags);
+}
+
+stock MyRemoveServerTag(const String:tag[])
+{
+    decl String:newtags[128];
+    if (sv_tags == INVALID_HANDLE)
+    {
+        return;
+    }
+
+    GetConVarString(sv_tags, newtags, sizeof(newtags));
+    if (StrContains(newtags, tag) == -1)
+    {
+        // tag isn't on here, just bug out
+        return;
+    }
+
+    ReplaceString(newtags, sizeof(newtags), tag, "");
+    ReplaceString(newtags, sizeof(newtags), ",,", "");
+    new flags = GetConVarFlags(sv_tags);
+    SetConVarFlags(sv_tags, flags & ~FCVAR_NOTIFY);
+    SetConVarString(sv_tags, newtags);
+    SetConVarFlags(sv_tags, flags);
 }
