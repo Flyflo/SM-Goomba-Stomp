@@ -44,7 +44,7 @@ new Handle:sv_tags;
 new Handle:g_Cookie_ClientPref;
 
 new Goomba_Fakekill[MAXPLAYERS+1];
-new Goomba_SingleImmunityMessage[MAXPLAYERS+1];
+new Goomba_SingleStomp[MAXPLAYERS+1];
 
 // Thx to Pawn 3-pg
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
@@ -172,9 +172,11 @@ public Action:OnStartTouch(client, other)
 
                     if(vec[2] < GetConVarFloat(g_Cvar_StompMinSpeed) * -1.0)
                     {
-                        if(GoombaCheck(client, other))
+                        if(GoombaCheck(client, other) && Goomba_SingleStomp[client] == 0)
                         {
                             GoombaStomp(client, other);
+                            Goomba_SingleStomp[client] = 1;
+                            CreateTimer(0.5, InhibMessage, client);
                         }
                     }
                 }
@@ -228,13 +230,8 @@ bool:GoombaCheck(client, victim)
         {
             if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
             {
-                if(Goomba_SingleImmunityMessage[client] == 0)
-                {
-                    CPrintToChat(client, "%t", "Victim Immun");
-                }
+                CPrintToChat(client, "%t", "Victim Immun");
 
-                Goomba_SingleImmunityMessage[client] = 1;
-                CreateTimer(0.5, InhibMessage, client);
                 return false;
             }
         }
@@ -497,7 +494,7 @@ public Action:Cmd_GoombaStatus(client, args)
 
 public Action:InhibMessage(Handle:timer, any:client)
 {
-    Goomba_SingleImmunityMessage[client] = 0;
+    Goomba_SingleStomp[client] = 0;
 }
 
 public Action:Timer_DeleteParticle(Handle:timer, any:ref)
