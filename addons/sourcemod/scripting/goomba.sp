@@ -44,6 +44,7 @@ new Handle:g_Cvar_StompUndisguise = INVALID_HANDLE;
 new Handle:g_Cvar_CloakedImun = INVALID_HANDLE;
 new Handle:g_Cvar_BonkedImun = INVALID_HANDLE;
 new Handle:g_Cvar_SoundsEnabled = INVALID_HANDLE;
+new Handle:g_Cvar_ParticlesEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_ImmunityEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_DamageLifeMultiplier = INVALID_HANDLE;
 new Handle:g_Cvar_DamageAdd = INVALID_HANDLE;
@@ -81,6 +82,7 @@ public OnPluginStart()
     g_Cvar_CloakedImun = CreateConVar("goomba_cloaked_immun", "0.0", "Prevent cloaked spies from being stomped", 0, true, 0.0, true, 1.0);
     g_Cvar_BonkedImun = CreateConVar("goomba_bonked_immun", "1.0", "Prevent bonked scout from being stomped", 0, true, 0.0, true, 1.0);
     g_Cvar_SoundsEnabled = CreateConVar("goomba_sounds", "1", "Enable or disable sounds of the plugin", 0, true, 0.0, true, 1.0);
+    g_Cvar_ParticlesEnabled = CreateConVar("goomba_particles", "1", "Enable or disable particles of the plugin", 0, true, 0.0, true, 1.0);
     g_Cvar_ImmunityEnabled = CreateConVar("goomba_immunity", "1", "Enable or disable the immunity system", 0, true, 0.0, true, 1.0);
 
     g_Cvar_DamageLifeMultiplier = CreateConVar("goomba_dmg_lifemultiplier", "1.0", "How much damage the victim will receive based on its actual life", 0, true, 0.0, false, 0.0);
@@ -340,10 +342,13 @@ GoombaStomp(client, victim)
         return;
     }
 
-    new particle = AttachParticle(victim, "mini_fireworks");
-    if(particle != -1)
+    if(GetConVarBool(g_Cvar_ParticlesEnabled))
     {
-        CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
+        new particle = AttachParticle(victim, "mini_fireworks");
+        if(particle != -1)
+        {
+            CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
+        }
     }
 
     new victim_health = GetClientHealth(victim);
