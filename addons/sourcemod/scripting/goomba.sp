@@ -7,7 +7,7 @@
 #undef REQUIRE_PLUGIN
 #include <updater>
 
-#define UPDATE_URL    "https://github.com/Flyflo/SM-Goomba-Stomp/raw/master/addons/sourcemod/update.txt"
+#define UPDATE_URL    "https://raw.github.com/Flyflo/SM-Goomba-Stomp/master/addons/sourcemod/update.txt"
 
 #define PL_NAME "Goomba Stomp Core"
 #define PL_DESC "Goomba Stomp core plugin"
