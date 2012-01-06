@@ -63,6 +63,11 @@ public OnPluginStart()
 
 public Action:OnPreStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus, &Float:reboundPower)
 {
+    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged) && !GetConVarBool(g_Cvar_UberImun))
+    {
+        TF2_RemoveCondition(victim, TFCond_Ubercharged);
+    }
+
     return Plugin_Continue;
 }
 

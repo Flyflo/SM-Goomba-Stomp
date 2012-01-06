@@ -45,7 +45,7 @@ new Goomba_Fakekill[MAXPLAYERS+1];
 
 new g_GameMod;
 
-// Thx to Pawn 3-pg
+// Thx to Pawn 3-pg (https://forums.alliedmods.net/showthread.php?p=1140480#post1140480)
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
 new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 
@@ -67,8 +67,6 @@ public OnPluginStart()
     {
         Updater_AddPlugin(UPDATE_URL);
     }
-
-    // DetectGameMod();
 
     g_Cvar_PluginEnabled = CreateConVar("goomba_enabled", "1.0", "Plugin On/Off", 0, true, 0.0, true, 1.0);
 
@@ -99,6 +97,15 @@ public OnPluginStart()
     sv_tags = FindConVar("sv_tags");
     MyAddServerTag("stomp");
     HookConVarChange(g_Cvar_PluginEnabled, OnPluginChangeState);
+
+    // Support for plugin late loading
+    for (new client = 1; client <= MaxClients; client++)
+    {
+        if(IsClientInGame(client))
+        {
+            OnClientPutInServer(client);
+        }
+    }
 }
 
 public OnPluginEnd()
@@ -128,12 +135,6 @@ public OnLibraryAdded(const String:name[])
     }
 }
 
-/*
-public Action:OnPreStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus, &Float:reboundPower)
-{
-    return Plugin_Continue;
-}*/
-
 public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
     if(GetConVarBool(g_Cvar_PluginEnabled))
@@ -144,6 +145,11 @@ public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newV
     {
         MyRemoveServerTag("stomp");
     }
+}
+
+public OnClientPutInServer(client)
+{
+    SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
 }
 
 bool:CheckImmunity(client, victim)
@@ -253,28 +259,22 @@ public GoombaStomp(Handle:hPlugin, numParams)
         }
     }
 
-    new victim_health = GetClientHealth(victim);
-
-    /*
-    // Rebond
-    decl Float:vecAng[3], Float:vecVel[3];
-    GetClientEyeAngles(client, vecAng);
-    GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVel);
-    vecAng[0] = DegToRad(vecAng[0]);
-    vecAng[1] = DegToRad(vecAng[1]);
-    vecVel[0] = jumpPower * Cosine(vecAng[0]) * Cosine(vecAng[1]);
-    vecVel[1] = jumpPower * Cosine(vecAng[0]) * Sine(vecAng[1]);
-    vecVel[2] = jumpPower + 100.0;
-
-    g_TeleportAtFrameEnd[client] = true;
-    g_TeleportAtFrameEnd_Vel[client] = vecVel;*/
-
-    /*if(g_GameMod == GAME_TF && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
+    if(jumpPower > 0.0)
     {
-        TF2_RemoveCondition(victim, TFCond_Ubercharged);
-    }*/
+        decl Float:vecAng[3], Float:vecVel[3];
+        GetClientEyeAngles(client, vecAng);
+        GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVel);
+        vecAng[0] = DegToRad(vecAng[0]);
+        vecAng[1] = DegToRad(vecAng[1]);
+        vecVel[0] = jumpPower * Cosine(vecAng[0]) * Cosine(vecAng[1]);
+        vecVel[1] = jumpPower * Cosine(vecAng[0]) * Sine(vecAng[1]);
+        vecVel[2] = jumpPower + 100.0;
 
+        g_TeleportAtFrameEnd[client] = true;
+        g_TeleportAtFrameEnd_Vel[client] = vecVel;
+    }
 
+    new victim_health = GetClientHealth(victim);
     Goomba_Fakekill[victim] = 1;
     SDKHooks_TakeDamage(victim,
                         client,
