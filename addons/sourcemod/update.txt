@@ -1,0 +1,19 @@
+"Updater"
+{
+    "Information"
+    {
+        "Version"
+        {
+            "Latest"    "1.2.3"
+        }
+        
+        "Notes"     "See changelog on the topic or GitHub"
+    }
+
+    "Files"
+    {
+        "Plugin"    "Path_SM/plugins/goomba.smx"
+
+        "Source"    "Path_SM/scripting/goomba.sp"
+    }
+}
