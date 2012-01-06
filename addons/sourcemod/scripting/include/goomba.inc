@@ -1,3 +1,16 @@
+#if defined _goomba_included_
+  #endinput
+#endif
+#define _goomba_included_
+
+public SharedPlugin:__pl_goomba =
+{
+	name = "goomba",
+	file = "goomba.smx",
+	required = 1,
+};
+
+
 /**
  * @brief Called right before the stomp
  *
@@ -8,3 +21,9 @@
  * @return                  Plugin_Handled to block the stomp, Plugin_Changed to modify the damage
  */
 forward Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus);
+
+
+native GoombaStomp(attacker, victim, ...);
+
+native PlayStompSound(client);
+native PlayReboundSound(client);

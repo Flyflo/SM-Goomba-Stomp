@@ -1,27 +1,20 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <tf2_stocks>
-#include <colors>
-#include <clientprefs>
+#include <sdktools>
 #include <sdkhooks>
+#include <clientprefs>
 #undef REQUIRE_PLUGIN
 #include <updater>
 
 #define UPDATE_URL    "https://github.com/Flyflo/SM-Goomba-Stomp/raw/master/update.txt"
 
-#define PL_NAME "Goomba Stomp"
-#define PL_DESC "Goomba Stomp"
+#define PL_NAME "Goomba Stomp Core"
+#define PL_DESC "Goomba Stomp core plugin"
 #define PL_VERSION "1.2.2"
 
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"
-
-#define GAME_UNKNOW 0
-#define GAME_TF 1
-#define GAME_CSS 2
-#define GAME_DODS 3
-#define GAME_L4D 4
 
 public Plugin:myinfo =
 {
@@ -32,20 +25,14 @@ public Plugin:myinfo =
     url = "http://www.geek-gaming.fr"
 }
 
-new Handle:g_hForwardOnStomp;
+new Handle:g_hForwardOnPreStomp;
 
-new Handle:g_Cvar_StompMinSpeed = INVALID_HANDLE;
-new Handle:g_Cvar_PluginEnabled = INVALID_HANDLE;
-new Handle:g_Cvar_UberImun = INVALID_HANDLE;
 new Handle:g_Cvar_JumpPower = INVALID_HANDLE;
-new Handle:g_Cvar_CloakImun = INVALID_HANDLE;
-new Handle:g_Cvar_StunImun = INVALID_HANDLE;
-new Handle:g_Cvar_StompUndisguise = INVALID_HANDLE;
-new Handle:g_Cvar_CloakedImun = INVALID_HANDLE;
-new Handle:g_Cvar_BonkedImun = INVALID_HANDLE;
-new Handle:g_Cvar_SoundsEnabled = INVALID_HANDLE;
+new Handle:g_Cvar_PluginEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_ParticlesEnabled = INVALID_HANDLE;
+new Handle:g_Cvar_SoundsEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_ImmunityEnabled = INVALID_HANDLE;
+
 new Handle:g_Cvar_DamageLifeMultiplier = INVALID_HANDLE;
 new Handle:g_Cvar_DamageAdd = INVALID_HANDLE;
 
@@ -55,7 +42,6 @@ new Handle:sv_tags;
 new Handle:g_Cookie_ClientPref;
 
 new Goomba_Fakekill[MAXPLAYERS+1];
-new Goomba_SingleStomp[MAXPLAYERS+1];
 
 new g_GameMod;
 
@@ -63,27 +49,33 @@ new g_GameMod;
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
 new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 
+public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMaxErrors)
+{
+    CreateNative("GoombaStomp", GoombaStomp);
+    CreateNative("PlayStompSound", PlayStompSound);
+    CreateNative("PlayReboundSound", PlayReboundSound);
+
+    return APLRes_Success;
+}
+
 public OnPluginStart()
 {
     LoadTranslations("goomba.phrases");
+    RegPluginLibrary("goomba");
 
     if (LibraryExists("updater"))
     {
         Updater_AddPlugin(UPDATE_URL);
     }
 
+    // DetectGameMod();
+
     g_Cvar_PluginEnabled = CreateConVar("goomba_enabled", "1.0", "Plugin On/Off", 0, true, 0.0, true, 1.0);
-    g_Cvar_StompMinSpeed = CreateConVar("goomba_minspeed", "360.0", "Minimum falling speed to kill", 0, true, 0.0, false, 0.0);
-    g_Cvar_CloakImun = CreateConVar("goomba_cloak_immun", "1.0", "Prevent cloaked spies from stomping", 0, true, 0.0, true, 1.0);
-    g_Cvar_StunImun = CreateConVar("goomba_stun_immun", "1.0", "Prevent stunned players from being stomped", 0, true, 0.0, true, 1.0);
-    g_Cvar_UberImun = CreateConVar("goomba_uber_immun", "1.0", "Prevent ubercharged players from being stomped", 0, true, 0.0, true, 1.0);
-    g_Cvar_JumpPower = CreateConVar("goomba_rebound_power", "300.0", "Goomba jump power", 0, true, 0.0);
-    g_Cvar_StompUndisguise = CreateConVar("goomba_undisguise", "1.0", "Undisguise spies after stomping", 0, true, 0.0, true, 1.0);
-    g_Cvar_CloakedImun = CreateConVar("goomba_cloaked_immun", "0.0", "Prevent cloaked spies from being stomped", 0, true, 0.0, true, 1.0);
-    g_Cvar_BonkedImun = CreateConVar("goomba_bonked_immun", "1.0", "Prevent bonked scout from being stomped", 0, true, 0.0, true, 1.0);
+
     g_Cvar_SoundsEnabled = CreateConVar("goomba_sounds", "1", "Enable or disable sounds of the plugin", 0, true, 0.0, true, 1.0);
     g_Cvar_ParticlesEnabled = CreateConVar("goomba_particles", "1", "Enable or disable particles of the plugin", 0, true, 0.0, true, 1.0);
     g_Cvar_ImmunityEnabled = CreateConVar("goomba_immunity", "1", "Enable or disable the immunity system", 0, true, 0.0, true, 1.0);
+    g_Cvar_JumpPower = CreateConVar("goomba_rebound_power", "300.0", "Goomba jump power", 0, true, 0.0);
 
     g_Cvar_DamageLifeMultiplier = CreateConVar("goomba_dmg_lifemultiplier", "1.0", "How much damage the victim will receive based on its actual life", 0, true, 0.0, false, 0.0);
     g_Cvar_DamageAdd = CreateConVar("goomba_dmg_add", "50.0", "Add this amount of damage after goomba_dmg_lifemultiplier calculation", 0, true, 0.0, false, 0.0);
@@ -101,23 +93,12 @@ public OnPluginStart()
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
     HookEvent("player_spawn", Event_PlayerSpawn);
 
-    g_hForwardOnStomp = CreateGlobalForward("OnStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef);
+    g_hForwardOnPreStomp = CreateGlobalForward("OnPreStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef, Param_FloatByRef);
 
     // sv_tags stuff
     sv_tags = FindConVar("sv_tags");
     MyAddServerTag("stomp");
     HookConVarChange(g_Cvar_PluginEnabled, OnPluginChangeState);
-
-    // Support for plugin late loading
-    for (new client = 1; client <= MaxClients; client++)
-    {
-        if(IsClientInGame(client))
-        {
-            OnClientPutInServer(client);
-        }
-    }
-
-    DetectGameMod();
 }
 
 public OnPluginEnd()
@@ -147,25 +128,11 @@ public OnLibraryAdded(const String:name[])
     }
 }
 
-public OnClientPutInServer(client)
+/*
+public Action:OnPreStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus, &Float:reboundPower)
 {
-    SDKHook(client, SDKHook_StartTouch, OnStartTouch);
-    SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
-}
-
-public Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus)
-{
-    decl Action:result;
-
-    Call_StartForward(g_hForwardOnStomp);
-    Call_PushCell(attacker);
-    Call_PushCell(victim);
-    Call_PushFloatRef(damageMultiplier);
-    Call_PushFloatRef(damageBonus);
-    Call_Finish(result);
-
-    return result;
-}
+    return Plugin_Continue;
+}*/
 
 public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
@@ -179,102 +146,8 @@ public OnPluginChangeState(Handle:cvar, const String:oldVal[], const String:newV
     }
 }
 
-DetectGameMod()
+bool:CheckImmunity(client, victim)
 {
-    decl String:modName[32];
-    GetGameFolderName(modName, sizeof(modName));
-
-    if(StrEqual(modName, "tf", false))
-    {
-        g_GameMod = GAME_TF;
-        PrintToServer("[Goomba] Detected game: Team Fortress 2");
-    }
-    else if(StrEqual(modName, "cstrike", false))
-    {
-        g_GameMod = GAME_CSS;
-        PrintToServer("[Goomba] Detected game: Counter-Strike: Source");
-    }
-    else if(StrEqual(modName, "dod", false))
-    {
-        g_GameMod = GAME_DODS;
-        PrintToServer("[Goomba] Detected game: Day of Defeat: Source");
-    }
-    else if(StrEqual(modName, "left4dead", false) || StrEqual(modName, "left4dead2", false))
-    {
-        g_GameMod = GAME_L4D;
-        PrintToServer("[Goomba] Detected game: Left 4 Dead");
-    }
-    else
-    {
-        g_GameMod = GAME_UNKNOW;
-        PrintToServer("[Goomba] Unknown game, use at your own risks");
-    }
-}
-
-public Action:OnStartTouch(client, other)
-{
-    if(GetConVarBool(g_Cvar_PluginEnabled))
-    {
-        if(other > 0 && other <= MaxClients)
-        {
-            if(IsClientInGame(client) && IsPlayerAlive(client))
-            {
-                decl Float:ClientPos[3];
-                decl Float:VictimPos[3];
-                GetClientAbsOrigin(client, ClientPos);
-                GetClientAbsOrigin(other, VictimPos);
-
-                new Float:HeightDiff = ClientPos[2] - VictimPos[2];
-
-                if((HeightDiff > 82.0) || ((GetClientButtons(other) & IN_DUCK) && (HeightDiff > 62.0)))
-                {
-                    decl Float:vec[3];
-                    GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", vec);
-
-                    if(vec[2] < GetConVarFloat(g_Cvar_StompMinSpeed) * -1.0)
-                    {
-                        if(GoombaCheck(client, other) && Goomba_SingleStomp[client] == 0)
-                        {
-                            GoombaStomp(client, other);
-                            Goomba_SingleStomp[client] = 1;
-                            CreateTimer(0.5, InhibMessage, client);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return Plugin_Continue;
-}
-
-bool:GoombaCheck(client, victim)
-{
-    if(victim <= 0 || victim > MaxClients)
-    {
-        return false;
-    }
-
-    decl String:edictName[32];
-    GetEdictClassname(victim, edictName, sizeof(edictName));
-
-    if(!StrEqual(edictName, "player"))
-    {
-        return false;
-    }
-    if(!IsPlayerAlive(victim))
-    {
-        return false;
-    }
-    if(GetClientTeam(client) == GetClientTeam(victim))
-    {
-        return false;
-    }
-    if(GetEntProp(victim, Prop_Data, "m_takedamage", 1) == 0)
-    {
-        return false;
-    }
-
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookieClient[16];
@@ -298,48 +171,77 @@ bool:GoombaCheck(client, victim)
         }
     }
 
-    if(g_GameMod == GAME_TF)
-    {
-        if((GetConVarBool(g_Cvar_UberImun) && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)))
-        {
-            return false;
-        }
-        if(GetConVarBool(g_Cvar_StunImun) && TF2_IsPlayerInCondition(victim, TFCond_Dazed))
-        {
-            return false;
-        }
-        if(GetConVarBool(g_Cvar_CloakImun) && TF2_IsPlayerInCondition(client, TFCond_Cloaked))
-        {
-            return false;
-        }
-        if(GetConVarBool(g_Cvar_CloakedImun) && TF2_IsPlayerInCondition(victim, TFCond_Cloaked))
-        {
-            return false;
-        }
-        if(GetConVarBool(g_Cvar_BonkedImun) && TF2_IsPlayerInCondition(victim, TFCond_Bonked))
-        {
-            return false;
-        }
-    }
-
     return true;
 }
 
-GoombaStomp(client, victim)
+
+public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 {
+    new victim = GetClientOfUserId(GetEventInt(event, "userid"));
+
+    if(Goomba_Fakekill[victim] == 1)
+    {
+        SetEventBool(event, "goomba", true);
+    }
+
+    return Plugin_Continue;
+}
+
+
+public GoombaStomp(Handle:hPlugin, numParams)
+{
+    // If the plugin is disabled stop here
+    if(!GetConVarBool(g_Cvar_PluginEnabled))
+    {
+        return false;
+    }
+    if(numParams < 2 || numParams > 5)
+    {
+        return false;
+    }
+
+    // Retrieve the parameters
+    new client = GetNativeCell(1);
+    new victim = GetNativeCell(2);
+
     new Float:damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
     new Float:damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+    new Float:jumpPower = GetConVarFloat(g_Cvar_JumpPower);
 
-    new Action:stompForwardResult = OnStomp(client, victim, damageMultiplier, damageBonus);
-
-    if(stompForwardResult == Plugin_Continue)
+    switch(numParams)
     {
-        damageMultiplier = GetConVarFloat(g_Cvar_DamageLifeMultiplier);
-        damageBonus = GetConVarFloat(g_Cvar_DamageAdd);
+        case 3:
+            damageMultiplier = GetNativeCellRef(3);
+        case 4:
+            damageBonus = GetNativeCellRef(4);
+        case 5:
+            jumpPower = GetNativeCellRef(5);
     }
-    else if(stompForwardResult != Plugin_Changed)
+
+    new Float:modifiedDamageMultiplier = damageMultiplier;
+    new Float:modifiedDamageBonus = damageBonus;
+    new Float:modifiedJumpPower = jumpPower;
+
+    // Launch forward
+    decl Action:preStompForwardResult;
+
+    Call_StartForward(g_hForwardOnPreStomp);
+    Call_PushCell(client);
+    Call_PushCell(victim);
+    Call_PushFloatRef(modifiedDamageMultiplier);
+    Call_PushFloatRef(modifiedDamageBonus);
+    Call_PushFloatRef(modifiedJumpPower);
+    Call_Finish(preStompForwardResult);
+
+    if(preStompForwardResult == Plugin_Changed)
     {
-        return;
+        damageMultiplier = modifiedDamageMultiplier;
+        damageBonus = modifiedDamageBonus;
+        jumpPower = modifiedJumpPower;
+    }
+    else if(preStompForwardResult != Plugin_Continue)
+    {
+        return false;
     }
 
     if(GetConVarBool(g_Cvar_ParticlesEnabled))
@@ -353,23 +255,25 @@ GoombaStomp(client, victim)
 
     new victim_health = GetClientHealth(victim);
 
+    /*
     // Rebond
     decl Float:vecAng[3], Float:vecVel[3];
     GetClientEyeAngles(client, vecAng);
     GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVel);
     vecAng[0] = DegToRad(vecAng[0]);
     vecAng[1] = DegToRad(vecAng[1]);
-    vecVel[0] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Cosine(vecAng[1]);
-    vecVel[1] = GetConVarFloat(g_Cvar_JumpPower) * Cosine(vecAng[0]) * Sine(vecAng[1]);
-    vecVel[2] = GetConVarFloat(g_Cvar_JumpPower) + 100.0;
+    vecVel[0] = jumpPower * Cosine(vecAng[0]) * Cosine(vecAng[1]);
+    vecVel[1] = jumpPower * Cosine(vecAng[0]) * Sine(vecAng[1]);
+    vecVel[2] = jumpPower + 100.0;
 
     g_TeleportAtFrameEnd[client] = true;
-    g_TeleportAtFrameEnd_Vel[client] = vecVel;
+    g_TeleportAtFrameEnd_Vel[client] = vecVel;*/
 
-    if(TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
+    /*if(g_GameMod == GAME_TF && TF2_IsPlayerInCondition(victim, TFCond_Ubercharged))
     {
         TF2_RemoveCondition(victim, TFCond_Ubercharged);
-    }
+    }*/
+
 
     Goomba_Fakekill[victim] = 1;
     SDKHooks_TakeDamage(victim,
@@ -379,6 +283,44 @@ GoombaStomp(client, victim)
                         DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
 
     Goomba_Fakekill[victim] = 0;
+
+    return true;
+}
+
+public PlayReboundSound(Handle:hPlugin, numParams)
+{
+    if(numParams != 1)
+    {
+        return;
+    }
+
+    new client = GetNativeCell(1);
+
+    if (IsClientInGame(client))
+    {
+        if(GetConVarBool(g_Cvar_SoundsEnabled))
+        {
+            EmitSoundToAll(REBOUND_SOUND, client);
+        }
+    }
+}
+
+public PlayStompSound(Handle:hPlugin, numParams)
+{
+    if(numParams != 1)
+    {
+        return;
+    }
+
+    new client = GetNativeCell(1);
+
+    if (IsClientInGame(client) && IsPlayerAlive(client))
+    {
+        if(GetConVarBool(g_Cvar_SoundsEnabled))
+        {
+            EmitSoundToClient(client, STOMP_SOUND, client);
+        }
+    }
 }
 
 public OnPreThinkPost(client)
@@ -398,42 +340,6 @@ public OnPreThinkPost(client)
     g_TeleportAtFrameEnd[client] = false;
 }
 
-public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
-{
-    new victim = GetClientOfUserId(GetEventInt(event, "userid"));
-
-    if(Goomba_Fakekill[victim] == 1)
-    {
-        new killer = GetClientOfUserId(GetEventInt(event, "attacker"));
-
-        new damageBits = GetEventInt(event, "damagebits");
-
-        SetEventString(event, "weapon_logclassname", "goomba");
-        SetEventString(event, "weapon", "taunt_scout");
-        SetEventInt(event, "damagebits", damageBits |= DMG_ACID);
-        SetEventInt(event, "customkill", 0);
-        SetEventInt(event, "playerpenetratecount", 0);
-
-        if(!(GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER))
-        {
-            if(GetConVarBool(g_Cvar_SoundsEnabled))
-            {
-                EmitSoundToClient(victim, STOMP_SOUND, victim);
-            }
-
-            PrintHintText(victim, "%t", "Victim Stomped");
-        }
-
-        if(GetConVarBool(g_Cvar_StompUndisguise))
-        {
-            TF2_RemovePlayerDisguise(killer);
-        }
-
-        CPrintToChatAllEx(killer, "%t", "Goomba Stomp", killer, victim);
-    }
-
-    return Plugin_Continue;
-}
 
 public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
@@ -557,11 +463,6 @@ public Action:Cmd_GoombaStatus(client, args)
     }
 
     return Plugin_Handled;
-}
-
-public Action:InhibMessage(Handle:timer, any:client)
-{
-    Goomba_SingleStomp[client] = 0;
 }
 
 public Action:Timer_DeleteParticle(Handle:timer, any:ref)
