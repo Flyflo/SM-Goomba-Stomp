@@ -23,7 +23,17 @@ public SharedPlugin:__pl_goomba =
 forward Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus);
 
 
-native GoombaStomp(attacker, victim, ...);
+native bool:GoombaStomp(attacker, victim, ...);
+
+// Return true when the stomp can occurs
+native ImmunityResult:CheckImmunity(attacker, victim);
 
 native PlayStompSound(client);
 native PlayReboundSound(client);
+
+enum ImmunityResult
+{
+	NoImmunity = 0,
+	AttackerImmunity,
+	VictimImmunity,
+};

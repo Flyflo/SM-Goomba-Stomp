@@ -43,8 +43,6 @@ new Handle:g_Cookie_ClientPref;
 
 new Goomba_Fakekill[MAXPLAYERS+1];
 
-new g_GameMod;
-
 // Thx to Pawn 3-pg (https://forums.alliedmods.net/showthread.php?p=1140480#post1140480)
 new bool:g_TeleportAtFrameEnd[MAXPLAYERS+1] = false;
 new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
@@ -52,6 +50,7 @@ new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMaxErrors)
 {
     CreateNative("GoombaStomp", GoombaStomp);
+    CreateNative("CheckImmunity", CheckImmunity);
     CreateNative("PlayStompSound", PlayStompSound);
     CreateNative("PlayReboundSound", PlayReboundSound);
 
@@ -152,8 +151,16 @@ public OnClientPutInServer(client)
     SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
 }
 
-bool:CheckImmunity(client, victim)
+public CheckImmunity(Handle:hPlugin, numParams)
 {
+    if(numParams != 2)
+    {
+        return 3;
+    }
+
+    new client = GetNativeCell(1);
+    new victim = GetNativeCell(2);
+
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookieClient[16];
@@ -164,20 +171,18 @@ bool:CheckImmunity(client, victim)
 
         if(StrEqual(strCookieClient, "on") || StrEqual(strCookieClient, "next_off"))
         {
-            return false;
+            return 1;
         }
         else
         {
             if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
             {
-                CPrintToChat(client, "%t", "Victim Immun");
-
-                return false;
+                return 2;
             }
         }
     }
 
-    return true;
+    return 0;
 }
 
 

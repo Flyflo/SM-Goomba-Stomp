@@ -96,14 +96,26 @@ public Action:OnStartTouch(client, other)
 
                 if(vec[2] < GetConVarFloat(g_Cvar_StompMinSpeed) * -1.0)
                 {
-                    if(IsValidStompTargets(client, other) && Goomba_SingleStomp[client] == 0)
+                    if(Goomba_SingleStomp[client] == 0)
                     {
-                        if(GoombaStomp(client, other))
+                        if(AreValidStompTargets(client, other))
                         {
-                            PlayReboundSound(client);
+                            new ImmunityResult:result = CheckImmunity(client, other);
+
+                            if(result == NoImmunity)
+                            {
+                                if(GoombaStomp(client, other))
+                                {
+                                    PlayReboundSound(client);
+                                }
+                                Goomba_SingleStomp[client] = 1;
+                                CreateTimer(0.5, SinglStompTimer, client);
+                            }
+                            else if(result == VictimImmunity)
+                            {
+                                CPrintToChat(client, "%t", "Victim Immun");
+                            }
                         }
-                        Goomba_SingleStomp[client] = 1;
-                        CreateTimer(0.5, SinglStompTimer, client);
                     }
                 }
             }
@@ -113,7 +125,7 @@ public Action:OnStartTouch(client, other)
     return Plugin_Continue;
 }
 
-bool:IsValidStompTargets(client, victim)
+bool:AreValidStompTargets(client, victim)
 {
     if(victim <= 0 || victim > MaxClients)
     {
