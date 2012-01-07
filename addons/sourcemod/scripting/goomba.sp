@@ -54,14 +54,15 @@ public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMax
     CreateNative("CheckImmunity", CheckImmunity);
     CreateNative("PlayStompSound", PlayStompSound);
     CreateNative("PlayReboundSound", PlayReboundSound);
+    CreateNative("EmitReboundParticles", EmitReboundParticles);
 
     return APLRes_Success;
 }
 
 public OnPluginStart()
 {
-    LoadTranslations("goomba.phrases");
     RegPluginLibrary("goomba");
+    LoadTranslations("goomba.phrases");
 
     if (LibraryExists("updater"))
     {
@@ -263,15 +264,6 @@ public GoombaStomp(Handle:hPlugin, numParams)
         return false;
     }
 
-    if(GetConVarBool(g_Cvar_ParticlesEnabled))
-    {
-        new particle = AttachParticle(victim, "mini_fireworks");
-        if(particle != -1)
-        {
-            CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
-        }
-    }
-
     if(jumpPower > 0.0)
     {
         decl Float:vecAng[3], Float:vecVel[3];
@@ -332,6 +324,25 @@ public PlayStompSound(Handle:hPlugin, numParams)
         if(GetConVarBool(g_Cvar_SoundsEnabled))
         {
             EmitSoundToClient(client, STOMP_SOUND, client);
+        }
+    }
+}
+
+public EmitReboundParticles(Handle:hPlugin, numParams)
+{
+    if(numParams != 1)
+    {
+        return;
+    }
+
+    new client = GetNativeCell(1);
+
+    if(GetConVarBool(g_Cvar_ParticlesEnabled))
+    {
+        new particle = AttachParticle(client, "mini_fireworks");
+        if(particle != -1)
+        {
+            CreateTimer(5.0, Timer_DeleteParticle, EntIndexToEntRef(particle), TIMER_FLAG_NO_MAPCHANGE);
         }
     }
 }

@@ -31,6 +31,8 @@ native ImmunityResult:CheckImmunity(attacker, victim);
 native PlayStompSound(client);
 native PlayReboundSound(client);
 
+native EmitReboundParticles(client);
+
 enum ImmunityResult
 {
 	NoImmunity = 0,
