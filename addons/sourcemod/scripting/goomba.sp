@@ -32,6 +32,7 @@ new Handle:g_Cvar_PluginEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_ParticlesEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_SoundsEnabled = INVALID_HANDLE;
 new Handle:g_Cvar_ImmunityEnabled = INVALID_HANDLE;
+new Handle:g_Cvar_StompMinSpeed = INVALID_HANDLE;
 
 new Handle:g_Cvar_DamageLifeMultiplier = INVALID_HANDLE;
 new Handle:g_Cvar_DamageAdd = INVALID_HANDLE;
@@ -73,6 +74,9 @@ public OnPluginStart()
     g_Cvar_ParticlesEnabled = CreateConVar("goomba_particles", "1", "Enable or disable particles of the plugin", 0, true, 0.0, true, 1.0);
     g_Cvar_ImmunityEnabled = CreateConVar("goomba_immunity", "1", "Enable or disable the immunity system", 0, true, 0.0, true, 1.0);
     g_Cvar_JumpPower = CreateConVar("goomba_rebound_power", "300.0", "Goomba jump power", 0, true, 0.0);
+    g_Cvar_StompMinSpeed = CreateConVar("goomba_minspeed", "360.0", "Minimum falling speed to kill", 0, true, 0.0, false, 0.0);
+    // To remove the warning about this variable not being used
+    GetConVarFloat(g_Cvar_StompMinSpeed);
 
     g_Cvar_DamageLifeMultiplier = CreateConVar("goomba_dmg_lifemultiplier", "1.0", "How much damage the victim will receive based on its actual life", 0, true, 0.0, false, 0.0);
     g_Cvar_DamageAdd = CreateConVar("goomba_dmg_add", "50.0", "Add this amount of damage after goomba_dmg_lifemultiplier calculation", 0, true, 0.0, false, 0.0);
@@ -198,6 +202,10 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
     return Plugin_Continue;
 }
 
+public Action:OnPreStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus, &Float:reboundPower)
+{
+    return Plugin_Continue;
+}
 
 public GoombaStomp(Handle:hPlugin, numParams)
 {
