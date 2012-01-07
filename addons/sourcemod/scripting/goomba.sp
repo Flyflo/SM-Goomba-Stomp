@@ -50,6 +50,8 @@ new Float:g_TeleportAtFrameEnd_Vel[MAXPLAYERS+1][3];
 
 public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMaxErrors)
 {
+    RegPluginLibrary("goomba");
+
     CreateNative("GoombaStomp", GoombaStomp);
     CreateNative("CheckImmunity", CheckImmunity);
     CreateNative("PlayStompSound", PlayStompSound);
@@ -61,7 +63,6 @@ public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMax
 
 public OnPluginStart()
 {
-    RegPluginLibrary("goomba");
     LoadTranslations("goomba.phrases");
 
     if (LibraryExists("updater"))

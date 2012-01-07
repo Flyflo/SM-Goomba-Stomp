@@ -7,9 +7,21 @@ public SharedPlugin:__pl_goomba =
 {
 	name = "goomba",
 	file = "goomba.smx",
+#if defined REQUIRE_PLUGIN
 	required = 1,
+#else
+	required = 0,
+#endif
 };
 
+public __pl_ircrelay_SetNTVOptional()
+{
+    MarkNativeAsOptional("GoombaStomp");
+    MarkNativeAsOptional("CheckImmunity");
+    MarkNativeAsOptional("PlayStompSound");
+    MarkNativeAsOptional("PlayReboundSound");
+    MarkNativeAsOptional("EmitReboundParticles");
+}
 
 /**
  * @brief Called right before the stomp
