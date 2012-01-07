@@ -11,7 +11,7 @@
 
 #define PL_NAME "Goomba Stomp Core"
 #define PL_DESC "Goomba Stomp core plugin"
-#define PL_VERSION "1.2.2"
+#define PL_VERSION "2.0.0"
 
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"

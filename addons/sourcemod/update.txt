@@ -4,7 +4,7 @@
     {
         "Version"
         {
-            "Latest"    "1.2.3"
+            "Latest"    "2.0.0"
         }
         
         "Notes"     "See changelog on the topic or GitHub"
