@@ -153,10 +153,10 @@ public CheckImmunity(Handle:hPlugin, numParams)
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookieClient[16];
-        GetClientCookie(client, g_Cookie_ClientPref, strCookieClient, sizeof(strCookieClient));
+        GetImmunityCookie(client, g_Cookie_ClientPref, strCookieClient, sizeof(strCookieClient));
 
         decl String:strCookieVictim[16];
-        GetClientCookie(victim, g_Cookie_ClientPref, strCookieVictim, sizeof(strCookieVictim));
+        GetImmunityCookie(victim, g_Cookie_ClientPref, strCookieVictim, sizeof(strCookieVictim));
 
         if(StrEqual(strCookieClient, "on") || StrEqual(strCookieClient, "next_off"))
         {
@@ -363,6 +363,13 @@ stock GetImmunityCookie(client, Handle:cookie, String:strCookie[], maxlen)
 public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
+
+    // Delay the update so class specific cfg are applied.
+    CreateTimer(0.1, Timer_UpdateImmunity, client);
+}
+
+public Action:Timer_UpdateImmunity(Handle:timer, any:client)
+{
     decl String:strCookie[16];
     GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
