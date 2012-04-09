@@ -86,6 +86,7 @@ public OnPluginStart()
 
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
     HookEvent("player_spawn", Event_PlayerSpawn);
+    HookEvent("post_inventory_application", Event_LockerTouch);
 
     g_hForwardOnPreStomp = CreateGlobalForward("OnPreStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef, Param_FloatByRef);
 
@@ -365,6 +366,14 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
     // Delay the update so class specific cfg are applied.
+    CreateTimer(0.1, Timer_UpdateImmunity, client);
+}
+
+public Action:Event_LockerTouch(Handle:event, const String:name[], bool:dontBroadcast)
+{
+    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+
+    // Delay the update so class specific cfg are applied (maybe not usefull for this event).
     CreateTimer(0.1, Timer_UpdateImmunity, client);
 }
 
