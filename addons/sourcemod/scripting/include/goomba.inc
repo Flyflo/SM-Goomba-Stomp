@@ -34,15 +34,47 @@ public __pl_ircrelay_SetNTVOptional()
  */
 forward Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus);
 
-
+/**
+ * @brief Stomp 
+ *
+ * @param attacker              Player doing the stomp
+ * @param victim                Player being stomped
+ * @param    damageMultiplier   Damage inflicted based on the victim's health (default: goomba_dmg_lifemultiplier)
+ * @param    damageBonus        Damage bonus after damageMultiplier calculation (default: goomba_dmg_add)
+ * @param    jumpPower          Jump power of the rebound (default: goomba_rebound_power)
+ * @noreturn 
+ */
 native bool:GoombaStomp(attacker, victim, ...);
 
-// Return true when the stomp can occurs
+/**
+ * @param attacker          Player doing the stomp
+ * @param victim            Player being stomped
+ * @return                  ImmunityResult based on the attacker and victim's immunity preferences
+ */
 native ImmunityResult:CheckImmunity(attacker, victim);
 
+/**
+ * @brief Play the stomped sound to the specified client
+ *
+ * @param client            Client to play the stomped sound to.
+ * @noreturn
+ */
 native PlayStompSound(client);
+
+/**
+ * @brief Play the rebound sound from the specified client to everyone
+ *
+ * @param client            Player to play the rebound sound from.
+ * @noreturn
+ */
 native PlayReboundSound(client);
 
+/**
+ * @brief Attach the rebound particles on the specified player
+ *
+ * @param client            Player to attach the particles on
+ * @noreturn
+ */
 native EmitReboundParticles(client);
 
 enum ImmunityResult
