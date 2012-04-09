@@ -348,12 +348,23 @@ public OnPreThinkPost(client)
     g_TeleportAtFrameEnd[client] = false;
 }
 
+stock GetImmunityCookie(client, Handle:cookie, String:strCookie[], maxlen)
+{
+    if(!AreClientCookiesCached(client))
+    {
+        strcopy(strCookie, maxlen, "off");
+    }
+    else
+    {
+        GetClientCookie(client, g_Cookie_ClientPref, strCookie, maxlen);
+    }
+}
 
 public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     decl String:strCookie[16];
-    GetClientCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
+    GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
     //-----------------------------------------------------
     // on       = Immunity enabled
@@ -381,7 +392,7 @@ public Action:Cmd_GoombaToggle(client, args)
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookie[16];
-        GetClientCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
+        GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
         if(StrEqual(strCookie, "off") || StrEqual(strCookie, "next_off"))
         {
@@ -406,7 +417,7 @@ public Action:Cmd_GoombaOn(client, args)
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookie[16];
-        GetClientCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
+        GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
         if(!StrEqual(strCookie, "off"))
         {
@@ -426,7 +437,7 @@ public Action:Cmd_GoombaOff(client, args)
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookie[16];
-        GetClientCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
+        GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
         if(!StrEqual(strCookie, "on"))
         {
@@ -446,7 +457,7 @@ public Action:Cmd_GoombaStatus(client, args)
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookie[16];
-        GetClientCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
+        GetImmunityCookie(client, g_Cookie_ClientPref, strCookie, sizeof(strCookie));
 
         if(StrEqual(strCookie, "on"))
         {
