@@ -5,7 +5,7 @@
            - Fixed a little bug with the sound fonctions.
 - 1.0.2 :
            - Added a new immunity system (require clientprefs).
-           - Fixed a bug with the über immunity.
+           - Fixed a bug with the Ã¼ber immunity.
            - Cleanup of the GoombaStomp() code.
 - 1.0.3 :
            - OnGameFrame() is back, SM 1.2 support.
@@ -46,3 +46,25 @@
            - Fixed (for real) the death message for Dead Ringer'ed spies (thx FlaminSarge).
            - Fixed death messages not appearing in some conditions.
            - Stomp killicon is now always shown as critical.
+
+- 2.0.0 :
+           - Rewrote a huge part of the plugin.
+           - The plugin is now split in several parts:
+                - The core plugin.
+                - Game specific plugins.
+           - The core plugin is game independant.
+           - It provides natives and forward to be used by other plugins:
+                - GoombaStomp
+                - CheckStompImmunity
+                - PlayStompSound
+                - PlayStompReboundSound
+                - EmitStompParticles
+                - OnStomp
+                - OnStompPost
+           - The plugin now support late loading.
+           - Added some of FlaminSarge's changes:
+               - Added constants to define which sounds the plugin will use.
+               - Cleaned up the EmitStompParticles function.
+               - Fixed an issue with immunity cookies.
+           - A "stomp" tag is added to the sv_tags.
+           - Added a cvar to enable/disable particles.
