@@ -12,6 +12,10 @@
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"
 
+#define GOOMBA_IMMUNFLAG_NONE           0
+#define GOOMBA_IMMUNFLAG_ATTACKER       (1 << 0)
+#define GOOMBA_IMMUNFLAG_VICTIM         (1 << 1)
+
 public Plugin:myinfo =
 {
     name = PL_NAME,
@@ -151,6 +155,8 @@ public CheckImmunity(Handle:hPlugin, numParams)
     new client = GetNativeCell(1);
     new victim = GetNativeCell(2);
 
+    new result = GOOMBA_IMMUNFLAG_NONE;
+
     if(GetConVarBool(g_Cvar_ImmunityEnabled))
     {
         decl String:strCookieClient[16];
@@ -161,18 +167,15 @@ public CheckImmunity(Handle:hPlugin, numParams)
 
         if(StrEqual(strCookieClient, "on") || StrEqual(strCookieClient, "next_off"))
         {
-            return 1;
+            result |= GOOMBA_IMMUNFLAG_ATTACKER;
         }
-        else
+        if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
         {
-            if(StrEqual(strCookieVictim, "on") || StrEqual(strCookieVictim, "next_off"))
-            {
-                return 2;
-            }
+            result |= GOOMBA_IMMUNFLAG_VICTIM;
         }
     }
 
-    return 0;
+    return result;
 }
 
 

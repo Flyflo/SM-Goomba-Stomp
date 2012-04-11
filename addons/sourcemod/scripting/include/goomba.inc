@@ -32,7 +32,7 @@ public __pl_ircrelay_SetNTVOptional()
  * @param damageBonus       Damage bonus
  * @return                  Plugin_Handled to block the stomp, Plugin_Changed to modify the damage
  */
-forward Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus);
+forward Action:OnPreStomp(attacker, victim, &Float:damageMultiplier, &Float:damageBonus);
 
 /**
  * @brief Stomp 
@@ -42,7 +42,8 @@ forward Action:OnStomp(attacker, victim, &Float:damageMultiplier, &Float:damageB
  * @param    damageMultiplier   Damage inflicted based on the victim's health (default: goomba_dmg_lifemultiplier)
  * @param    damageBonus        Damage bonus after damageMultiplier calculation (default: goomba_dmg_add)
  * @param    jumpPower          Jump power of the rebound (default: goomba_rebound_power)
- * @noreturn 
+ *
+ * @return                      True if the stomp was successful, false otherwise.
  */
 native bool:GoombaStomp(attacker, victim, ...);
 
@@ -51,7 +52,7 @@ native bool:GoombaStomp(attacker, victim, ...);
  * @param victim            Player being stomped
  * @return                  ImmunityResult based on the attacker and victim's immunity preferences
  */
-native ImmunityResult:CheckImmunity(attacker, victim);
+native CheckImmunity(attacker, victim);
 
 /**
  * @brief Play the stomped sound to the specified client
@@ -77,9 +78,6 @@ native PlayReboundSound(client);
  */
 native EmitReboundParticles(client);
 
-enum ImmunityResult
-{
-	NoImmunity = 0,
-	AttackerImmunity,
-	VictimImmunity,
-};
+#define GOOMBA_IMMUNFLAG_NONE           0
+#define GOOMBA_IMMUNFLAG_ATTACKER       (1 << 0)
+#define GOOMBA_IMMUNFLAG_VICTIM         (1 << 1)
