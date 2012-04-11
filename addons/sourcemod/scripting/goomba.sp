@@ -54,10 +54,10 @@ public APLRes:AskPluginLoad2(Handle:hMySelf, bool:bLate, String:strError[], iMax
     RegPluginLibrary("goomba");
 
     CreateNative("GoombaStomp", GoombaStomp);
-    CreateNative("CheckImmunity", CheckImmunity);
+    CreateNative("CheckStompImmunity", CheckStompImmunity);
     CreateNative("PlayStompSound", PlayStompSound);
-    CreateNative("PlayReboundSound", PlayReboundSound);
-    CreateNative("EmitReboundParticles", EmitReboundParticles);
+    CreateNative("PlayStompReboundSound", PlayStompReboundSound);
+    CreateNative("EmitStompParticles", EmitStompParticles);
 
     return APLRes_Success;
 }
@@ -147,7 +147,7 @@ public OnClientPutInServer(client)
     SDKHook(client, SDKHook_PreThinkPost, OnPreThinkPost);
 }
 
-public CheckImmunity(Handle:hPlugin, numParams)
+public CheckStompImmunity(Handle:hPlugin, numParams)
 {
     if(numParams != 2)
     {
@@ -291,7 +291,7 @@ public GoombaStomp(Handle:hPlugin, numParams)
     return true;
 }
 
-public PlayReboundSound(Handle:hPlugin, numParams)
+public PlayStompReboundSound(Handle:hPlugin, numParams)
 {
     if(numParams != 1)
     {
@@ -327,7 +327,7 @@ public PlayStompSound(Handle:hPlugin, numParams)
     }
 }
 
-public EmitReboundParticles(Handle:hPlugin, numParams)
+public EmitStompParticles(Handle:hPlugin, numParams)
 {
     if(numParams != 1)
     {

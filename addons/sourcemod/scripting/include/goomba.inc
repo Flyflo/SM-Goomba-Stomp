@@ -17,10 +17,10 @@ public SharedPlugin:__pl_goomba =
 public __pl_ircrelay_SetNTVOptional()
 {
     MarkNativeAsOptional("GoombaStomp");
-    MarkNativeAsOptional("CheckImmunity");
+    MarkNativeAsOptional("CheckStompImmunity");
     MarkNativeAsOptional("PlayStompSound");
-    MarkNativeAsOptional("PlayReboundSound");
-    MarkNativeAsOptional("EmitReboundParticles");
+    MarkNativeAsOptional("PlayStompReboundSound");
+    MarkNativeAsOptional("EmitStompParticles");
 }
 
 /**
@@ -64,7 +64,7 @@ native bool:GoombaStomp(attacker, victim, ...);
  * @param victim            Player being stomped
  * @return                  Bit flags combination based on the attacker and victim's immunity preferences
  */
-native CheckImmunity(attacker, victim);
+native CheckStompImmunity(attacker, victim);
 
 /**
  * @brief Play the stomped sound to the specified client
@@ -80,7 +80,7 @@ native PlayStompSound(client);
  * @param client            Player to play the rebound sound from.
  * @noreturn
  */
-native PlayReboundSound(client);
+native PlayStompReboundSound(client);
 
 /**
  * @brief Attach the rebound particles on the specified player
@@ -88,7 +88,7 @@ native PlayReboundSound(client);
  * @param client            Player to attach the particles on
  * @noreturn
  */
-native EmitReboundParticles(client);
+native EmitStompParticles(client);
 
 #define GOOMBA_IMMUNFLAG_NONE           0
 #define GOOMBA_IMMUNFLAG_ATTACKER       (1 << 0)
