@@ -25,7 +25,8 @@ public Plugin:myinfo =
     url = "http://www.geek-gaming.fr"
 }
 
-new Handle:g_hForwardOnPreStomp;
+new Handle:g_hForwardOnStomp;
+new Handle:g_hForwardOnStompPost;
 
 new Handle:g_Cvar_JumpPower = INVALID_HANDLE;
 new Handle:g_Cvar_PluginEnabled = INVALID_HANDLE;
@@ -92,7 +93,8 @@ public OnPluginStart()
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("post_inventory_application", Event_LockerTouch);
 
-    g_hForwardOnPreStomp = CreateGlobalForward("OnPreStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef, Param_FloatByRef);
+    g_hForwardOnStomp = CreateGlobalForward("OnStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef, Param_FloatByRef);
+    g_hForwardOnStompPost = CreateGlobalForward("OnStompPost", ET_Ignore, Param_Cell, Param_Cell, Param_Float, Param_Float, Param_Float);
 
     // sv_tags stuff
     sv_tags = FindConVar("sv_tags");
@@ -231,23 +233,23 @@ public GoombaStomp(Handle:hPlugin, numParams)
     new Float:modifiedJumpPower = jumpPower;
 
     // Launch forward
-    decl Action:preStompForwardResult;
+    decl Action:stompForwardResult;
 
-    Call_StartForward(g_hForwardOnPreStomp);
+    Call_StartForward(g_hForwardOnStomp);
     Call_PushCell(client);
     Call_PushCell(victim);
     Call_PushFloatRef(modifiedDamageMultiplier);
     Call_PushFloatRef(modifiedDamageBonus);
     Call_PushFloatRef(modifiedJumpPower);
-    Call_Finish(preStompForwardResult);
+    Call_Finish(stompForwardResult);
 
-    if(preStompForwardResult == Plugin_Changed)
+    if(stompForwardResult == Plugin_Changed)
     {
         damageMultiplier = modifiedDamageMultiplier;
         damageBonus = modifiedDamageBonus;
         jumpPower = modifiedJumpPower;
     }
-    else if(preStompForwardResult != Plugin_Continue)
+    else if(stompForwardResult != Plugin_Continue)
     {
         return false;
     }
@@ -276,6 +278,15 @@ public GoombaStomp(Handle:hPlugin, numParams)
                         DMG_PREVENT_PHYSICS_FORCE | DMG_CRUSH | DMG_ALWAYSGIB);
 
     Goomba_Fakekill[victim] = 0;
+
+    // Launch forward
+    Call_StartForward(g_hForwardOnStompPost);
+    Call_PushCell(client);
+    Call_PushCell(victim);
+    Call_PushFloat(damageMultiplier);
+    Call_PushFloat(damageBonus);
+    Call_PushFloat(jumpPower);
+    Call_Finish();
 
     return true;
 }
