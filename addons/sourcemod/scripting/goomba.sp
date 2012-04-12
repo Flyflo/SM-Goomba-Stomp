@@ -249,7 +249,7 @@ public GoombaStomp(Handle:hPlugin, numParams)
         damageBonus = modifiedDamageBonus;
         jumpPower = modifiedJumpPower;
     }
-    else if(stompForwardResult != Plugin_Continue)
+    else if(stompForwardResult == Plugin_Handled)
     {
         return false;
     }
