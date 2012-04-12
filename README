@@ -6,5 +6,4 @@ Sourcemod plugin providing goomba stomp actions on some games.
 INSTALLATION:
 -------------
 Require the SDKHooks extension.
-Put the goomba.smx file in your addons/sourcemod/plugins folder.
-Put the fastdownload folder's content at the root of your server (or your fastdl sever if you have one).
+Just put the addons and sound folder at the root of your game server (ex: tf).
