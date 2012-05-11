@@ -68,3 +68,6 @@
                - Fixed an issue with immunity cookies.
            - A "stomp" tag is added to the sv_tags.
            - Added a cvar to enable/disable particles.
+
+- 2.0.1 :
+           - Fixed a little bug when running the plugin on a non TF2 server.
