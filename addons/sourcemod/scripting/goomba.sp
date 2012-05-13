@@ -95,10 +95,7 @@ public OnPluginStart()
     decl String:modName[32];
     GetGameFolderName(modName, sizeof(modName));
 
-    if(StrEqual(modName, "tf", false))
-    {
-        HookEvent("post_inventory_application", Event_LockerTouch);
-    }
+    HookEventEx("post_inventory_application", Event_LockerTouch);
 
     g_hForwardOnStomp = CreateGlobalForward("OnStomp", ET_Event, Param_Cell, Param_Cell, Param_FloatByRef, Param_FloatByRef, Param_FloatByRef);
     g_hForwardOnStompPost = CreateGlobalForward("OnStompPost", ET_Ignore, Param_Cell, Param_Cell, Param_Float, Param_Float, Param_Float);
