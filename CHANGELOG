@@ -71,3 +71,6 @@
 
 - 2.0.1 :
            - Fixed a little bug when running the plugin on a non TF2 server.
+
+- 2.0.2 :
+           - Fixed stomp sound not playing in some cases.
