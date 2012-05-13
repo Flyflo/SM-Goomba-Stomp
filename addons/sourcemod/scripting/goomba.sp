@@ -7,7 +7,7 @@
 
 #define PL_NAME "Goomba Stomp Core"
 #define PL_DESC "Goomba Stomp core plugin"
-#define PL_VERSION "2.0.1"
+#define PL_VERSION "2.0.2"
 
 #define STOMP_SOUND "goomba/stomp.wav"
 #define REBOUND_SOUND "goomba/rebound.wav"
@@ -325,7 +325,7 @@ public PlayStompSound(Handle:hPlugin, numParams)
 
     new client = GetNativeCell(1);
 
-    if (IsClientInGame(client) && IsPlayerAlive(client))
+    if (IsClientInGame(client))
     {
         if(GetConVarBool(g_Cvar_SoundsEnabled))
         {
