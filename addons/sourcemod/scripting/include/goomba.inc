@@ -14,7 +14,7 @@ public SharedPlugin:__pl_goomba =
 #endif
 };
 
-public __pl_ircrelay_SetNTVOptional()
+public __pl_goomba_SetNTVOptional()
 {
     MarkNativeAsOptional("GoombaStomp");
     MarkNativeAsOptional("CheckStompImmunity");
