@@ -30,7 +30,7 @@
 	{
 		"fr"			"Le système d'immunité n'est pas actif."
 		"en"			"Immunity system is disabled."
-        "ru"			"Система иммунитета отключена."
+		"ru"			"Система иммунитета отключена."
 	}
 	"Immun On"
 	{
