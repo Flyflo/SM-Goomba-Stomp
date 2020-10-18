@@ -74,3 +74,7 @@
 
 - 2.0.2 :
            - Fixed stomp sound not playing in some cases.
+
+- 2.0.3 :
+           - Added Russian translations (from Blueberryy)
+           - Added Brazilian Portuguese translations (from Tiagoquix)
