@@ -42,14 +42,14 @@
 		"fr"			"Stomp désactivé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp disabled, the option will be applied at respawn."
 		"ru"			"Stomp отключен, опция будет применена при возрождении."
-		"pt"			"Goomba Stomp desativado. A desativação surtirá efeito ao renascer."
+		"pt"			"Goomba Stomp desativado. A desativação será efetivada ao renascer."
 	}
 	"Immun Off"
 	{
 		"fr"			"Stomp activé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp enabled, the option will be applied at respawn."
 		"ru"			"Stomp включен, опция будет применена при возрождении."
-		"pt"			"Goomba Stomp ativado. A ativação surtirá efeito ao renascer."
+		"pt"			"Goomba Stomp ativado. A ativação será efetivada ao renascer."
 	}
 	"Status On"
 	{
