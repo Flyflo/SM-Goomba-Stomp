@@ -6,6 +6,7 @@
 		"fr"			"{olive}>> {teamcolor}{1} {default}a stompé {olive}{2} {default}!"
 		"en"			"{olive}>> {teamcolor}{1} {default}goomba stomped {olive}{2} {default}!"
 		"ru"			"{olive}>> {teamcolor}{1} {default}приземлился на {olive}{2} {default}!"
+		"pt"			"{olive}>> {teamcolor}{1} {default}deu goomba stomp em {olive}{2} {default}!"
 	}
 	"Goomba Stomp TeamKill"
 	{
@@ -13,59 +14,69 @@
 		"fr"			"{olive}>> {teamcolor}{1} {default}a stompé {teamcolor}{2} {default}!"
 		"en"			"{olive}>> {teamcolor}{1} {default}goomba stomped {teamcolor}{2} {default}!"
 		"ru"			"{olive}>> {teamcolor}{1} {default}приземлился на {teamcolor}{2} {default}!"
+		"pt"			"{olive}>> {teamcolor}{1} {default}deu goomba stomp em {teamcolor}{2} {default}!"
 	}
 	"Victim Stomped"
 	{
 		"fr"			"Vous avez été stompé !"
 		"en"			"You've been stomped !"
 		"ru"			"На вас приземлились !"
+		"pt"			"Você recebeu um goomba stomp !"
 	}
 	"Victim Immun"
 	{
 		"fr"			"{lightgreen}Le stomp est désactivé pour la victime."
 		"en"			"{lightgreen}Stomp is disabled for the victim."
 		"ru"			"{lightgreen}Stomp отключен для врагов."
+		"pt"			"{lightgreen}O Goomba Stomp está desativado para este(a) jogador(a)."
 	}
 	"Immun Disabled"
 	{
 		"fr"			"Le système d'immunité n'est pas actif."
 		"en"			"Immunity system is disabled."
 		"ru"			"Система иммунитета отключена."
+		"pt"			"O sistema de imunidade está desativado."
 	}
 	"Immun On"
 	{
 		"fr"			"Stomp désactivé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp disabled, the option will be applied at respawn."
 		"ru"			"Stomp отключен, опция будет применена при возрождении."
+		"pt"			"Goomba Stomp desativado. A desativação surtirá efeito ao renascer."
 	}
 	"Immun Off"
 	{
 		"fr"			"Stomp activé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp enabled, the option will be applied at respawn."
 		"ru"			"Stomp включен, опция будет применена при возрождении."
+		"pt"			"Goomba Stomp ativado. A ativação surtirá efeito ao renascer."
 	}
 	"Status On"
 	{
 		"fr"			"Le stomp est actuellement actif."
 		"en"			"Stomp is currently enabled."
 		"ru"			"Stomp в настоящее время включен."
+		"pt"			"O Goomba Stomp está atualmente ativado."
 	}
 	"Status Off"
 	{
 		"fr"			"Le stomp est actuellement inactif."
 		"en"			"Stomp is currently disabled."
 		"ru"			"Stomp в настоящее время отключен."
+		"pt"			"O Goomba Stomp está atualmente desativado."
 	}
 	"Status Next On"
 	{
 		"fr"			"Le stomp sera actif à la prochaine réapparition."
 		"en"			"Stomp will be enabled at respawn."
 		"ru"			"Stomp будет включен при возрождении."
+		"pt"			"O Goomba Stomp será ativado ao renascer."
 	}
 	"Status Next Off"
 	{
 		"fr"			"Le stomp sera inactif à la prochaine réapparition."
 		"en"			"Stomp will be disabled at respawn."
 		"ru"			"Stomp будет отключен при возрождении."
+		"pt"			"O Goomba Stomp será desativado ao renascer."
 	}
 }
