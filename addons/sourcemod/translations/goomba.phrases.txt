@@ -18,7 +18,7 @@
 	}
 	"Victim Stomped"
 	{
-		"fr"			"Vous avez été stompé!"
+		"fr"			"Vous avez été stompé !"
 		"en"			"You've been stomped!"
 		"ru"			"На вас приземлились!"
 		"pt"			"Você recebeu um goomba stomp!"
