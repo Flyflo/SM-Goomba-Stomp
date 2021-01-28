@@ -6,7 +6,7 @@
 		"fr"			"{olive}>> {teamcolor}{1} {default}a stompé {olive}{2} {default}!"
 		"en"			"{olive}>> {teamcolor}{1} {default}goomba stomped {olive}{2} {default}!"
 		"ru"			"{olive}>> {teamcolor}{1} {default}приземлился на {olive}{2} {default}!"
-		"pt"			"{olive}>> {teamcolor}{1} {default}deu goomba stomp em {olive}{2} {default}!"
+		"pt"			"{olive}>> {teamcolor}{1} {default}deu um goomba stomp em {olive}{2} {default}!"
 	}
 	"Goomba Stomp TeamKill"
 	{
@@ -14,14 +14,14 @@
 		"fr"			"{olive}>> {teamcolor}{1} {default}a stompé {teamcolor}{2} {default}!"
 		"en"			"{olive}>> {teamcolor}{1} {default}goomba stomped {teamcolor}{2} {default}!"
 		"ru"			"{olive}>> {teamcolor}{1} {default}приземлился на {teamcolor}{2} {default}!"
-		"pt"			"{olive}>> {teamcolor}{1} {default}deu goomba stomp em {teamcolor}{2} {default}!"
+		"pt"			"{olive}>> {teamcolor}{1} {default}deu um goomba stomp em {teamcolor}{2} {default}!"
 	}
 	"Victim Stomped"
 	{
 		"fr"			"Vous avez été stompé !"
-		"en"			"You've been stomped !"
-		"ru"			"На вас приземлились !"
-		"pt"			"Você recebeu um goomba stomp !"
+		"en"			"You've been stomped!"
+		"ru"			"На вас приземлились!"
+		"pt"			"Você recebeu um goomba stomp!"
 	}
 	"Victim Immun"
 	{
