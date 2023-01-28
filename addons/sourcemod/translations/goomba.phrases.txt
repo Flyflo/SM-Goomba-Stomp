@@ -28,7 +28,7 @@
 		"fr"			"{lightgreen}Le stomp est désactivé pour la victime."
 		"en"			"{lightgreen}Stomp is disabled for the victim."
 		"ru"			"{lightgreen}Stomp отключен для врагов."
-		"pt"			"{lightgreen}O Goomba Stomp está desativado para este(a) jogador(a)."
+		"pt"			"{lightgreen}O goomba stomp da vítima está desativado."
 	}
 	"Immun Disabled"
 	{
@@ -42,41 +42,41 @@
 		"fr"			"Stomp désactivé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp disabled, the option will be applied at respawn."
 		"ru"			"Stomp отключен, опция будет применена при возрождении."
-		"pt"			"Goomba Stomp desativado. A desativação será efetivada ao renascer."
+		"pt"			"Goomba stomp desativado. A desativação será efetivada ao renascer."
 	}
 	"Immun Off"
 	{
 		"fr"			"Stomp activé, l'option sera active à la prochaine réapparition."
 		"en"			"Stomp enabled, the option will be applied at respawn."
 		"ru"			"Stomp включен, опция будет применена при возрождении."
-		"pt"			"Goomba Stomp ativado. A ativação será efetivada ao renascer."
+		"pt"			"Goomba stomp ativado. A ativação será efetivada ao renascer."
 	}
 	"Status On"
 	{
 		"fr"			"Le stomp est actuellement actif."
 		"en"			"Stomp is currently enabled."
 		"ru"			"Stomp в настоящее время включен."
-		"pt"			"O Goomba Stomp está atualmente ativado."
+		"pt"			"O goomba stomp está ativado."
 	}
 	"Status Off"
 	{
 		"fr"			"Le stomp est actuellement inactif."
 		"en"			"Stomp is currently disabled."
 		"ru"			"Stomp в настоящее время отключен."
-		"pt"			"O Goomba Stomp está atualmente desativado."
+		"pt"			"O goomba stomp está desativado."
 	}
 	"Status Next On"
 	{
 		"fr"			"Le stomp sera actif à la prochaine réapparition."
 		"en"			"Stomp will be enabled at respawn."
 		"ru"			"Stomp будет включен при возрождении."
-		"pt"			"O Goomba Stomp será ativado ao renascer."
+		"pt"			"O goomba stomp será ativado ao renascer."
 	}
 	"Status Next Off"
 	{
 		"fr"			"Le stomp sera inactif à la prochaine réapparition."
 		"en"			"Stomp will be disabled at respawn."
 		"ru"			"Stomp будет отключен при возрождении."
-		"pt"			"O Goomba Stomp será desativado ao renascer."
+		"pt"			"O goomba stomp será desativado ao renascer."
 	}
 }
